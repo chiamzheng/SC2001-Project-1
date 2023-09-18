@@ -101,12 +101,11 @@ int main() {
 }
 
 int** generate(int x, int* lengths) {
-    int i = 0, j = 0;
-    int length = 100; // Initialize length to 100
+    int i = 0, j = 0, length = 100, multiplier=10; 
 
     int** arr = (int**)calloc(SIZE, sizeof(int*));
     for (i = 0; i < SIZE; i++) {
-        length = length * 10; // increasing size for current  array
+        length = length * multiplier; // increasing size for current  array
         lengths[i] = length; // Store the length of each array
         arr[i] = (int*)calloc(length, sizeof(int));
         for (j = 0; j < length; j++) {
