@@ -17,6 +17,7 @@ int main() {
         printf("2.Size of array\n");
         printf("3.First 100 Elements of array\n");
         printf("4.Find specific element of array\n");
+        printf("5.Exit program\n");
         scanf("%d", &choice);
 
         switch (choice) {
@@ -110,6 +111,9 @@ int main() {
                     printf("No array generated\n");
                 }
                 break; // end case 4
+            case 5:
+                printf("Closing Program");
+                break;
             default:
                 printf("Invalid choice\n");
                 break;
@@ -125,7 +129,6 @@ int main() {
     }
 
     free(arr_lengths);
-    printf("Closing Program");
     return 0;
 }
 
