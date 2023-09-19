@@ -9,7 +9,7 @@ void merge(int array[], int left_index, int mid_index, int right_index);
 void printArray(int arr[], int size);
 void insertionSort(int list[], int n);
 void swap(int list[], int x, int y);
-long long int keyCmp = 0; //Global variable
+unsigned int keyCmp = 0; //Global variable
 
 int main() {
     srand(time(NULL)); // Seed the random number generator (time(NULL) for random)
@@ -17,7 +17,7 @@ int main() {
     int choice = 0, x = 1000, generated = 0, gen=0,i = 0, ele = 0,ind=0,size=5;
     int** arr = NULL;
     int* arr_lengths = NULL; // To store the lengths of arrays
- long long int* arr_keyCmp = NULL; // To store key comparisons of all arrays
+    unsigned int* arr_keyCmp = NULL; // To store key comparisons of all arrays
 
     while (choice != 8) {
         printf("1.Generate array\n");
@@ -122,30 +122,34 @@ int main() {
                     printf("No array generated\n");
                 }
                 break; // end case 4
-            case 5:                                        // merge sort
-                for(i=0;i<size;i++){
-                    keyCmp=0;
-                    mergeSort(arr[i], 0, arr_lengths[0] - 1);
-                    printf("\nSorted array is \n");
-                    //printArray(arr[0], arr_lengths[0]);
-                    printf("Number of key comparisons: %d\n", keyCmp);
-                    arr_keyCmp[i]=keyCmp;
+            case 5:                             // merge sort
+                if (generated == 1){
+                    for(i=0;i<size;i++){
+                        keyCmp=0;
+                        mergeSort(arr[i], 0, arr_lengths[i] - 1);
+                        printf("\nSorted array is \n");
+                        //printArray(arr[0], arr_lengths[0]);
+                        printf("Number of key comparisons: %u\n", keyCmp);
+                        arr_keyCmp[i]=keyCmp;
+                    }
                 }
 
                 break;
             case 6:                                        //insertion sort
-                for(i=0;i<size;i++){
-                    keyCmp=0;
-                    insertionSort(arr[0], arr_lengths[0]);
-                    //printArray(arr[0], arr_lengths[0]);
-                    printf("Number of key comparisons: %d\n", keyCmp);
-                    arr_keyCmp[i]=keyCmp;
+                if (generated == 1){
+                    for(i=0;i<size;i++){
+                        keyCmp=0;
+                        insertionSort(arr[i], arr_lengths[i]);
+                        //printArray(arr[0], arr_lengths[0]);
+                        printf("Number of key comparisons: %u\n", keyCmp);
+                        arr_keyCmp[i]=keyCmp;
+                    }
                 }
                 break;
             case 7:
                 printf("Key comparisons are :\n");
                 for(i=0;i<size;i++){
-                    printf("%d : %d\n",arr_lengths[i],arr_keyCmp[i]);
+                    printf("%d : %u\n",arr_lengths[i],arr_keyCmp[i]);
                 }
                 break;
             case 8:
