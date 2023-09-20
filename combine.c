@@ -9,33 +9,37 @@ void merge(int array[], int left_index, int mid_index, int right_index);
 void printArray(int arr[], int size);
 void insertionSort(int list[], int n);
 void swap(int list[], int x, int y);
-unsigned int keyCmp = 0; //Global variable
+void hybridSort(int array[], int left, int right);
+unsigned int keyCmp = 0,n=1000,s=20; //Global variable
 
 int main() {
     srand(time(NULL)); // Seed the random number generator (time(NULL) for random)
 
-    int choice = 0, x = 1000, generated = 0, gen=0,i = 0, ele = 0,ind=0,size=5;
+    int choice = 0, x = 1000, generated = 0, gen=0,i = 0, ele = 0,ind=0,size=5,s_temp=s;
     int** arr = NULL;
     int* arr_lengths = NULL; // To store the lengths of arrays
     unsigned int* arr_keyCmp = NULL; // To store key comparisons of all arrays
 
-    while (choice != 8) {
+    while (choice != 9) {
         printf("1.Generate array\n");
-        printf("2.Size of array\n");
+        printf("2.Size of all arrays\n");
         printf("3.First 100 Elements of array\n");
         printf("4.Find specific element of array\n");
         printf("5.Merge sort\n");
         printf("6.Insertion sort\n");
-        printf("7.Number of key comparisons\n");
-        printf("8.Exit program\n");
+        printf("7.Hybrid sort\n");
+        printf("8.Number of key comparisons\n");
+        printf("9.Exit program\n");
         scanf("%d", &choice);
 
         switch (choice) {
             case 1:
                 printf("Choose sample size:\n");
-                printf("1.Small\n");
-                printf("2.Medium\n");
-                printf("3.Large\n");
+                printf("1.Small(1k-10mil) - 5 arrays\n"); // 5 arrays increasing size
+                printf("2.Medium (1k-10mil) - 9 arrays\n"); // 9 arrays increasing size
+                printf("3.Large (1k-10mil) - 37 arrays\n"); // 37 arrays increasing size
+                printf("4.Large (1-401) - 41 arrays\n"); // testing for fixed s, but different array size (ci) 41 arrays increasing size
+                printf("5.very Large (%d) - 200 arrays\n",n); // testing for fixed array size n, but different values of s (cii) 200 arrays
                 scanf("%d",&gen);
                 if((gen>0)&&(gen<4)&&(generated==1)){ //check if generated before and free previous arrays
                     for (i = 0; i < size; i++) {
@@ -48,7 +52,7 @@ int main() {
                     switch(gen){ //choose size of array
                         case 1:
                             size=5;
-                            gen=989898;
+                            gen=989898; // jump to case that initialise array and generate
                             break;
                         case 2:
                             size=9;
@@ -58,6 +62,13 @@ int main() {
                             size=37;
                             gen=989898;
                             break;
+                        case 4:
+                            size=41;
+                            gen=989898;
+                            break;
+                        case 5:
+                            size=200;
+                            gen=989898;
                         case 989898:
                             arr_lengths=(int*)calloc(size, sizeof(int));// create arr_lengths array
                             arr_keyCmp=(int*)calloc(size, sizeof(int));// create arr_keyCmp array
@@ -127,13 +138,15 @@ int main() {
                     for(i=0;i<size;i++){
                         keyCmp=0;
                         mergeSort(arr[i], 0, arr_lengths[i] - 1);
-                        printf("\nSorted array is \n");
+                        //printf("\nSorted array is \n");
                         //printArray(arr[0], arr_lengths[0]);
                         printf("Number of key comparisons: %u\n", keyCmp);
                         arr_keyCmp[i]=keyCmp;
                     }
                 }
-
+                else {
+                    printf("No array generated\n");
+                }
                 break;
             case 6:                                        //insertion sort
                 if (generated == 1){
@@ -145,14 +158,62 @@ int main() {
                         arr_keyCmp[i]=keyCmp;
                     }
                 }
-                break;
-            case 7:
-                printf("Key comparisons are :\n");
-                for(i=0;i<size;i++){
-                    printf("%d : %u\n",arr_lengths[i],arr_keyCmp[i]);
+                else {
+                    printf("No array generated\n");
                 }
                 break;
-            case 8:
+            case 7:                        //hybrid sort
+                if (generated == 1){
+                    if(size==200){
+                        printf("Test with increasing S? (1-200)\n");
+                        printf("1.Yes\n");
+                        printf("2.No\n");
+                        scanf("%d",&choice);
+                        switch(choice){
+                        case 1:
+                            s=0;
+                            for(i=0;i<size;i++){
+                                s++;
+                                keyCmp=0;
+                                hybridSort(arr[i],0,arr_lengths[i]);
+                                //printArray(arr[0], arr_lengths[0]);
+                                printf("Number of key comparisons: %u\n", keyCmp);
+                                arr_keyCmp[i]=keyCmp;
+                            }
+                            s=s_temp;
+                            break;
+                        case 2:
+                            for(i=0;i<size;i++){
+                                keyCmp=0;
+                                hybridSort(arr[i],0,arr_lengths[i]);
+                                //printArray(arr[0], arr_lengths[0]);
+                                printf("Number of key comparisons: %u\n", keyCmp);
+                                arr_keyCmp[i]=keyCmp;
+                            }
+                            break;
+                        default:
+                            printf("Invalid choice\n");
+                            break;
+                        }
+                    }
+                }
+                else {
+                    printf("No array generated\n");
+                }
+                break;
+            case 8:                       // print key comparisons
+                if (generated == 1){
+                    printf("Key comparisons are :\n");
+                    for(i=0;i<size;i++){
+                        printf("%d : %u\n",arr_lengths[i],arr_keyCmp[i]);
+                    }
+                }
+                else {
+                    printf("No array generated\n");
+                }
+                break;
+
+            case 9:
                 printf("Closing Program");
                 break;
             default:
@@ -185,7 +246,12 @@ int** generate(int x, int size, int* lengths) {
     else if(size==37){
         multiplier=1000;
     }
-
+    else if(size==41){
+        length=1;
+    }
+    else if(size==200){
+        length=n;
+    }
     for (i = 0; i < size; i++) {
         lengths[i] = length; // Store the length of each array
         arr[i] = (int*)calloc(length, sizeof(int));
@@ -206,6 +272,12 @@ int** generate(int x, int size, int* lengths) {
             case 5:
                 length=length*multiplier; //1k,10k,100k,1mil,10mil
                 break;
+            case 41:
+                length=length+multiplier;
+                break;
+            case 200:
+                break;
+
         }
 
     }
@@ -314,6 +386,26 @@ void swap(int list[], int x, int y)
     list[x] = list[y];
     list[y] = temp;
 }
+
+void hybridSort(int array[], int left, int right){
+    if (left < right){
+        int mid = left + (right - left) / 2;
+        if((mid+1)<=s){
+            insertionSort(array,(mid+1)); // if size of first half <s, use insertion sort
+        }
+        else{
+            hybridSort(array, left, mid); // else use hybrid
+        }
+        if((right-mid)<=s){
+            insertionSort(array,right-mid);
+        }
+        else{
+            hybridSort(array, mid+1, right);
+        }
+        merge(array, left, mid, right);
+    }
+}
+
 /*
 void hybridSort(int array[], int left_index, int mid_index, int right_index, int S){
 
