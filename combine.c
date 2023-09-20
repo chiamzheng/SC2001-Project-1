@@ -169,6 +169,10 @@ int main() {
                         printf("1.Yes\n");
                         printf("2.No\n");
                         scanf("%d",&choice);
+                    }
+                    else{
+                        choice=2;
+                    }
                         switch(choice){
                         case 1:
                             s=0;
@@ -195,7 +199,6 @@ int main() {
                             printf("Invalid choice\n");
                             break;
                         }
-                    }
                 }
                 else {
                     printf("No array generated\n");
