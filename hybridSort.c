@@ -10,16 +10,18 @@ void printArray(int arr[], int size);
 void insertionSort(int arr[], int start, int n);
 void swap(int list[], int x, int y);
 void hybridSort(int array[], int left, int right);
-unsigned int keyCmp = 0,n=1000,S=1; //Global variable
+unsigned int keyCmp = 0,n=1000,S=124; //Global variable
 
-int main() {
+int main(void) {
     srand(time(NULL)); // Seed the random number generator (time(NULL) for random)
 
-    int choice = 0, x = 30000, generated = 0, gen=0,i = 0, ele = 0,ind=0,size=5,s_temp=S;
+    int choice = 0, x = 1000, generated = 0, gen=0,i = 0, ele = 0,ind=0,size=5,s_temp=S;
     int** arr = NULL;
-    int* arr_lengths = NULL; // To store the lengths of arrays
+    int* arr_lengths = NULL;
+    double *arr_time = NULL;// To store the lengths of arrays
     unsigned int* arr_keyCmp = NULL; // To store key comparisons of all arrays
-
+    
+    
     FILE *file;
 
     file = fopen("C:\\Users\\Zheng\\Desktop\\hybridsort.csv", "w");
@@ -29,7 +31,10 @@ int main() {
         printf("Error opening file.\n");
         return 1;
     }
-
+    
+    
+    
+     
     while (choice != 9) {
         printf("1.Generate array\n");
         printf("2.Size of all arrays\n");
@@ -82,6 +87,7 @@ int main() {
                         case 989898:
                             arr_lengths=(int*)calloc(size, sizeof(int));// create arr_lengths array
                             arr_keyCmp=(int*)calloc(size, sizeof(int));// create arr_keyCmp array
+                            arr_time=(double*)calloc(size, sizeof(double));
                             arr = generate(x, size, arr_lengths); // Pass x, size and arr_lengths to the generate function
                             generated = 1;
                             gen=979797;
@@ -154,6 +160,7 @@ int main() {
                         end = clock();
                         cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
                         printf("cpu_time = %f", cpu_time_used);
+                        arr_time[i] = cpu_time_used;
                         //printf("\nSorted array is \n");
                         //printArray(arr[0], arr_lengths[0]);
                         printf("Number of key comparisons: %u\n", keyCmp);
@@ -175,6 +182,7 @@ int main() {
                         end = clock();
                         cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
                         printf("cpu_time = %f", cpu_time_used);
+                        arr_time[i] = cpu_time_used;
                         //printArray(arr[0], arr_lengths[0]);
                         printf("Number of key comparisons: %u\n", keyCmp);
                         arr_keyCmp[i]=keyCmp;
@@ -208,6 +216,7 @@ int main() {
                                 end = clock();
                                 cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
                                 printf("cpu_time = %f", cpu_time_used);
+                                arr_time[i] = cpu_time_used;
                                 //printArray(arr[0], arr_lengths[0]);
                                 printf("Number of key comparisons: %u\n", keyCmp);
                                 arr_keyCmp[i]=keyCmp;
@@ -224,6 +233,7 @@ int main() {
                                 end = clock();
                                 cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
                                 printf("cpu_time = %f", cpu_time_used);
+                                arr_time[i] = cpu_time_used;
                                 //printArray(arr[0], arr_lengths[0]);
                                 printf("Number of key comparisons: %u\n", keyCmp);
                                 arr_keyCmp[i]=keyCmp;
@@ -260,14 +270,15 @@ int main() {
     }
 
     //Write KeyCmp & ArrLen to csv file
-    fprintf(file, "Key Comparison, Array Length\n");
+    
+    fprintf(file, "Key Comparison, Array Length, CPU Time\n");
     for(int a=0; a<size; a++)
     {
-        fprintf(file, "%d,%d\n", arr_keyCmp[a], arr_lengths[a]);
+        fprintf(file, "%d,%d,%f\n", arr_keyCmp[a], arr_lengths[a], arr_time[a]);
     }
 
     fclose(file);
-
+     
 
     // Free the allocated memory before exiting
     if (generated == 1) {
@@ -440,7 +451,61 @@ void hybridMerge(int array[], int left_index, int mid_index, int right_index){
         insertionSort(array, left_index, right_index);
     }
     else{
-        merge(array, left_index, mid_index, right_index);
+        //Partitioning the list into two halves, temporary arrays l_arr and r_arr
+        int l_size = (mid_index - left_index) + 1;
+        int r_size = (right_index - mid_index);
+        //int l_arr[l_size], r_arr[r_size];
+
+        int *l_arr = malloc((l_size)*sizeof(int));
+        int *r_arr = malloc((r_size)*sizeof(int));
+        for (int i = 0; i < l_size; i++){
+            l_arr[i] = array[i + left_index];
+        }
+        for (int j = 0; j < r_size; j++){
+            r_arr[j] = array[j + mid_index + 1];
+        }
+
+
+        //Initalizing the indices of the left & right to 0 before starting the merging of the left and right array into the original
+        int l_index = 0, r_index = 0;
+        int original_index = left_index;
+
+        //Exit condition: When either left or right array are empty aka have been sorted through
+        while (l_index < l_size && r_index < r_size){
+
+            if (l_arr[l_index] <= r_arr[r_index]){ //when left <= right
+                array[original_index] = l_arr[l_index];
+                l_index++;
+                keyCmp++;
+            }
+            else{ //when right  < left
+                array[original_index] = r_arr[r_index];
+                r_index++;
+                keyCmp++;
+            }
+            original_index++;
+        }
+
+        //Now that either the left or right array is empty, we copy the remaining integers into the original array to complete the "merged" array
+        //Copying the elements of left array
+        if (l_index < l_size){
+            while (l_index < l_size){
+                array[original_index] = l_arr[l_index];
+                l_index++;
+                original_index++;
+            }
+        }
+        //Copying the elements of right array
+        else{ //if (r_index < r_size)
+            while (r_index < r_size){
+                array[original_index] = r_arr[r_index];
+                r_index++;
+                original_index++;
+            }
+        }
+
+        free(l_arr);
+        free(r_arr);
     }
 }
 
