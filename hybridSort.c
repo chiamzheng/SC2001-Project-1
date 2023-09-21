@@ -10,19 +10,19 @@ void printArray(int arr[], int size);
 void insertionSort(int arr[], int start, int n);
 void swap(int list[], int x, int y);
 void hybridSort(int array[], int left, int right);
-unsigned int keyCmp = 0,n=1000,S=20; //Global variable
+unsigned int keyCmp = 0,n=1000,S=1; //Global variable
 
 int main() {
     srand(time(NULL)); // Seed the random number generator (time(NULL) for random)
 
-    int choice = 0, x = 1000, generated = 0, gen=0,i = 0, ele = 0,ind=0,size=5,s_temp=S;
+    int choice = 0, x = 30000, generated = 0, gen=0,i = 0, ele = 0,ind=0,size=5,s_temp=S;
     int** arr = NULL;
     int* arr_lengths = NULL; // To store the lengths of arrays
     unsigned int* arr_keyCmp = NULL; // To store key comparisons of all arrays
 
     FILE *file;
 
-    file = fopen("C:\\Users\\cherm\\OneDrive\\Documents\\Graph.csv", "w");
+    file = fopen("C:\\Users\\Zheng\\Desktop\\hybridsort.csv", "w");
 
     if(file == NULL)
     {
@@ -115,7 +115,7 @@ int main() {
                         printf("Invalid index\n");
                     }
                     else {
-                        for (i = 0; i < 100; i++) {
+                        for (i = 0; i < 1000; i++) {
                             printf("%d ", arr[ele][i]);
                         }
                         printf("\n");
@@ -356,8 +356,10 @@ void merge(int array[], int left_index, int mid_index, int right_index){
     //Partitioning the list into two halves, temporary arrays l_arr and r_arr
     int l_size = (mid_index - left_index) + 1;
     int r_size = (right_index - mid_index);
-    int l_arr[l_size], r_arr[r_size];
+    //int l_arr[l_size], r_arr[r_size];
 
+    int *l_arr = malloc((l_size)*sizeof(int));
+    int *r_arr = malloc((r_size)*sizeof(int));
     for (int i = 0; i < l_size; i++){
         l_arr[i] = array[i + left_index];
     }
@@ -404,7 +406,8 @@ void merge(int array[], int left_index, int mid_index, int right_index){
         }
     }
 
-
+    free(l_arr);
+    free(r_arr);
 
 }
 
@@ -437,50 +440,7 @@ void hybridMerge(int array[], int left_index, int mid_index, int right_index){
         insertionSort(array, left_index, right_index);
     }
     else{
-        unsigned int l_size = (mid_index - left_index) + 1;
-        unsigned int r_size = (right_index - mid_index);
-        unsigned int l_arr[l_size], r_arr[r_size];
-
-        for (int i = 0; i < l_size; i++){
-            l_arr[i] = array[i + left_index];
-        }
-        for (int j = 0; j < r_size; j++){
-            r_arr[j] = array[j + mid_index + 1];
-        }
-
-        int l_index = 0, r_index = 0;
-        int original_index = left_index;
-
-        while (l_index < l_size && r_index < r_size){
-
-            if (l_arr[l_index] <= r_arr[r_index]){
-                array[original_index] = l_arr[l_index];
-                l_index++;
-                keyCmp++;
-            }
-            else{
-                array[original_index] = r_arr[r_index];
-                r_index++;
-                keyCmp++;
-            }
-            original_index++;
-        }
-
-        if (l_index < l_size){
-            while (l_index < l_size){
-                array[original_index] = l_arr[l_index];
-                l_index++;
-                original_index++;
-            }
-        }
-
-        else{
-            while (r_index < r_size){
-                array[original_index] = r_arr[r_index];
-                r_index++;
-                original_index++;
-            }
-        }
+        merge(array, left_index, mid_index, right_index);
     }
 }
 
