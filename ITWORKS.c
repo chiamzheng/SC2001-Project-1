@@ -10,7 +10,7 @@ void printArray(int arr[], int size);
 void insertionSort(int arr[], int start, int n);
 void swap(int list[], int x, int y);
 void hybridSort(int array[], int left, int right);
-unsigned int keyCmp = 0,n=1000,S=124; //Global variable
+unsigned int keyCmp = 0,n=1000,S=100; //Global variable
 
 int main(void) {
     srand(time(NULL)); // Seed the random number generator (time(NULL) for random)
@@ -20,20 +20,20 @@ int main(void) {
     int* arr_lengths = NULL;
     double *arr_time = NULL;// To store the lengths of arrays
     unsigned int* arr_keyCmp = NULL; // To store key comparisons of all arrays
-    
+
 
     FILE *file;
-    file = fopen("/Users/czr/Desktop/hybridsort.csv", "a");
+    file = fopen("C:\\Users\\Zheng\\Desktop\\hybridsort.csv", "a");
 
     if(file == NULL)
     {
         printf("Error opening file.\n");
         return 1;
     }
-    
-    
-    
-     
+
+
+
+
     while (choice != 9) {
         printf("1.Generate array\n");
         printf("2.Size of all arrays\n");
@@ -53,7 +53,7 @@ int main(void) {
                 printf("2.Medium (1k-10mil) - 9 arrays\n"); // 9 arrays increasing size
                 printf("3.Large (1k-10mil) - 37 arrays\n"); // 37 arrays increasing size
                 printf("4.Large (1-401) - 41 arrays\n"); // testing for fixed s, but different array size (ci) 41 arrays increasing size
-                printf("5.very Large (%d) - 200 arrays\n",n); // testing for fixed array size n, but different values of s (cii) 200 arrays
+                printf("5.very Large (%d) - 100 arrays\n",n); // testing for fixed array size n, but different values of s (cii) 200 arrays
                 scanf("%d",&gen);
                 if((gen>0)&&(gen<4)&&(generated==1)){ //check if generated before and free previous arrays
                     for (i = 0; i < size; i++) {
@@ -63,7 +63,7 @@ int main(void) {
                     free(arr_lengths);
                 }
                 while(gen!=979797){
-                    switch(gen){ //choose size of array
+                    switch(gen){ //choose number of array
                         case 1:
                             size=5;
                             gen=989898; // jump to case that initialise array and generate
@@ -82,7 +82,7 @@ int main(void) {
                             break;
                         case 5:
                             //size=200;
-                            size=1000;
+                            size=S;
                             gen=989898;
                         case 989898:
                             arr_lengths=(int*)calloc(size, sizeof(int));// create arr_lengths array
@@ -152,7 +152,7 @@ int main(void) {
             case 5:                             // merge sort
                 if (generated == 1){
                     for(i=0;i<size;i++){
-                        
+
 
                         keyCmp=0;
                         clock_t start, end; //added time func
@@ -168,7 +168,7 @@ int main(void) {
                         printf("Number of key comparisons: %u\n", keyCmp);
                         arr_keyCmp[i]=keyCmp;
                     }
-                    
+
                     //FILE
                     //file = fopen("/Users/czr/Desktop/hybridsort.csv", "a");
                     fprintf(file, "Key Comparison, Array Length, CPU Time\n");
@@ -212,7 +212,7 @@ int main(void) {
             case 7:                        //hybrid sort
                 if (generated == 1){
                     if(size==200){
-                        printf("Test with increasing S? (1-200)\n");
+                        printf("Test with increasing S? (1-100)\n");
                         printf("1.Yes\n");
                         printf("2.No\n");
                         scanf("%d",&choice);
@@ -243,7 +243,7 @@ int main(void) {
                                 fprintf(file, "Key Comparison, Array Length, CPU Time\n");
                                 for(int a=0; a<size; a++)
                                 {
-                                    fprintf(file, "%d,%d,%f\n", arr_keyCmp[a], arr_lengths[a], arr_time[a]);
+                                    fprintf(file, "%u,%d,%f\n", arr_keyCmp[a], arr_lengths[a], arr_time[a]);
                                 }
                             S=s_temp;
                             break;
@@ -262,6 +262,11 @@ int main(void) {
                                 printf("Number of key comparisons: %u\n", keyCmp);
                                 arr_keyCmp[i]=keyCmp;
                             }
+                            fprintf(file, "Key Comparison, Array Length, CPU Time\n");
+                                for(int a=0; a<size; a++)
+                                {
+                                    fprintf(file, "%u,%d,%f\n", arr_keyCmp[a], arr_lengths[a], arr_time[a]);
+                                }
                             break;
                         default:
                             printf("Invalid choice\n");
@@ -302,9 +307,9 @@ int main(void) {
     }
      */
      ///////////////////////////////     ///////////////////////////////     ///////////////////////////////     ///////////////////////////////     ///////////////////////////////
-    
-    
-    
+
+
+
     // Free the allocated memory before exiting
     if (generated == 1) {
         for (i = 0; i < size; i++) {
@@ -334,7 +339,7 @@ int** generate(int x, int size, int* lengths) {
         length=1;
     }
     //else if(size==200){
-    else if(size==1000){
+    else if(size==S){
         length=n;
     }
     for (i = 0; i < size; i++) {
@@ -359,8 +364,6 @@ int** generate(int x, int size, int* lengths) {
                 break;
             case 41:
                 length=length+multiplier;
-                break;
-            case 200:
                 break;
 
         }
