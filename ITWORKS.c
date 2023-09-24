@@ -63,7 +63,7 @@ int main(void) {
                     free(arr_lengths);
                 }
                 while(gen!=979797){
-                    switch(gen){ //choose number of array
+                    switch(gen){ //choose number of arrays
                         case 1:
                             size=5;
                             gen=989898; // jump to case that initialise array and generate
@@ -77,12 +77,12 @@ int main(void) {
                             gen=989898;
                             break;
                         case 4:
-                            size=41;
+                            size=100;
                             gen=989898;
                             break;
                         case 5:
                             //size=200;
-                            size=S;
+                            size=200;
                             gen=989898;
                         case 989898:
                             arr_lengths=(int*)calloc(size, sizeof(int));// create arr_lengths array
@@ -102,7 +102,7 @@ int main(void) {
                 }
 
                 break; // end case 1
-            case 2:
+            case 2:                            // for checking if random
                 if (generated == 1) {
                     printf("Sizes of arrays: \n");
                     for (i = 0; i < size; i++) {
@@ -335,7 +335,7 @@ int** generate(int x, int size, int* lengths) {
     else if(size==37){
         multiplier=1000;
     }
-    else if(size==41){
+    else if(size==100){
         length=1;
     }
     //else if(size==200){
@@ -362,8 +362,8 @@ int** generate(int x, int size, int* lengths) {
             case 5:
                 length=length*multiplier; //1k,10k,100k,1mil,10mil
                 break;
-            case 41:
-                length=length+multiplier;
+            case 100:
+                length=length+1;
                 break;
 
         }
