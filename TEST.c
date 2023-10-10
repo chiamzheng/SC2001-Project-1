@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h> // for the random number generator
@@ -26,10 +27,10 @@ typedef struct _graph{
 
 void swap(int *a, int *b);
 void heapify(int array[], int size, int i);
-void insert(int array[], struct _listnode* node);
+void insert(int array[], int w, int v);
 int deleteRoot(int array[], int num);
 void printArray(int array[], int size);
-int size=0 ,priorityW[100],priorityV[100];
+int size=0 ,priorityW[15],priorityV[15];
 int main()
 {
     Graph g;
@@ -208,15 +209,8 @@ int main()
                 }
                 break;
             case 4:
-                printf("Put everything into priority queue\n");
-                for(i=0;i<g.V;i++){
-                        testing= g.list[i]->next;
-                    do{
-                        insert(priorityW,testing);
-                        testing=testing->next;
-                    }while(testing->next!=NULL);
-                }
-                testing=NULL;
+                dik(g,0);
+
                 break;
             case 5:
                 //Before creating a new graph, free up the spaces if there exist a graph
@@ -240,8 +234,17 @@ int main()
                 printf("Enter the number of vertices: ");
                 int ver_count, max_edge;
                 scanf("%d", &ver_count);
-                printf("Enter the number of edges: ");
-                scanf("%d", &max_edge);
+
+                do  {
+                    printf("Enter the number of edges: ");
+                    scanf("%d", &max_edge);
+                    if (max_edge < ver_count){
+                        printf("Warning: Enter an edge count >= vertex count for a connected graph.\n");
+                    }
+                    else if (max_edge > (ver_count) * (ver_count - 1)){
+                        printf("Warning: Enter an edge count less than |V| * (|V|- 1).\n");
+                    }
+                }while (max_edge < ver_count && max_edge > (ver_count) * (ver_count - 1) );
 
                 srand(time(0));
                 g.V = ver_count;
@@ -280,6 +283,7 @@ int main()
                     g.list[i]->vertex = random_edge;
                     g.list[i]->weight = (rand() % (10 - 1 + 1)) + 1;
                     g.list[i]->next = NULL;
+                    g.list[i]->source=i;
                     g.E++;
                     edge_count++;
                 }
@@ -300,9 +304,10 @@ int main()
                     {
                         temp->next->vertex = (rand() % (g.V - 1 + 1)) + 1; //Upper bound = num of vertex, Lower bound = first vertex
                     }while(V1 == temp->next->vertex); //To prevent e.g. if first vertex connected to first vertex
-
+                    temp->next->source = V1;
                     temp->next->weight = (rand() % (10 - 1 + 1)) + 1;
                     temp->next->next = NULL;
+
                     g.E++;
                 }
                 break;
@@ -343,21 +348,22 @@ void heapify(int array[], int size, int i)
     }
   }
 }
-void insert(int array[],struct _listnode* node)
+void insert(int array[],int w, int v)
 {
   if (size == 0)
   {
-    array[0] = node->weight;
-    priorityV[0]= node->vertex;
+    array[0] = w;
+    priorityV[0]= v;
+    printf("inserted source %d with weight %d\n",priorityV[size],priorityW[size]);
     size++;
-    printf("inserted source %d with dest %d and weight %d",node->source,node->vertex,node->weight);
   }
   else
   {
-    array[size] = node->weight;
-    priorityV[size]= node->vertex;
+    array[size] = w;
+    priorityV[size]= v;
+    printf("inserted source %d with weight %d\n",priorityV[size],priorityW[size]);
     size ++;
-    printf("inserted source %d with dest %d and weight %d",node->source,node->vertex,node->weight);
+
     for (int i = size / 2 - 1; i >= 0; i--)
     {
       heapify(array, size, i);
@@ -367,20 +373,22 @@ void insert(int array[],struct _listnode* node)
 int deleteRoot(int array[], int num)
 {
   int i=0,value=0;
-  /* for (i = 0; i < size; i++)
+  for (i = 0; i < size; i++)
   {
     if (num == array[i])
       break;
   }
-    */
-  value=array[0];
-  array[0]=0;
+  if(num==-1){
+    i=0;
+  }
+  value=priorityV[i];
+  array[i]=0;
   swap(&array[i], &array[size - 1]);
+  swap(&priorityW[i], &priorityW[size - 1]);
   size --;
- // for (int i = size / 2 - 1; i >= 0; i--)
-  //{
+  for (int i = size / 2 - 1; i >= 0; i--){
     heapify(array, size, i);
- // }
+   }
   return value;
 }
 void printArray(int array[], int size)
@@ -420,6 +428,49 @@ void adjL2adjM(Graph *g){
 
     g->adj.matrix = mat;
 
+}
+void dik(Graph G, int source){
+
+    int d[G.V], pi[G.V],S[G.V],i=0,u, v=0;
+
+
+    for(i=0;i<G.V;i++){
+        d[i]=10000; //assign infinity
+        pi[i]=0; // assign null
+        S[i]=0;
+        priorityV[i]=0;// initialise priority
+        priorityW[i]=0;
+    }
+    d[source]=0;
+    clock_t start, end; //added time func
+    double cpu_time_used;
+    start = clock();
+    //priority[0]=source; // queue source node
+    for(i=0;i<G.V;i++){
+        insert(priorityW, d[i],i);//add vertices to priority queue
+    }
+    while(size!=0){
+        u=deleteRoot(priorityV,-1);
+        S[u]=1;
+        struct _listnode *temp=G.list[u];
+        while(temp!=NULL){
+            v=temp->vertex-1;
+            if(S[temp->vertex-1]!=1 && d[v]>(d[u]+G.list[u]->weight)){
+                deleteRoot(priorityV,v);
+                d[v]=d[u]+ G.list[u]->weight;
+                pi[v]= u;
+                insert(priorityW,d[v],v);
+            }
+            temp=temp->next;
+            printArray(d,G.V);
+        }
+    }
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    //printf("Time: %f",cpu_time_used);
+
+
+    return;
 }
 /*enum GraphType {ADJ_MATRIX, ADJ_LIST}; // Types of Graph Representation
 
