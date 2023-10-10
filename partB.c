@@ -96,6 +96,7 @@ int main()
                            temp->next->weight = W;
                            temp->next->next = NULL;
                            temp = temp->next;
+                           g.E++;
                         }
                     }
                     else
@@ -168,6 +169,7 @@ int main()
                     }while(V1 == temp->next->vertex); //To prevent e.g. if first vertex connected to first vertex
                     temp->next->weight = (rand() % (10 - 1 + 1)) + 1;
                     temp->next->next = NULL;
+                    g.E++;
                 }
                 break;
             case 3:
