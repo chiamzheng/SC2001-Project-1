@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h> // for the random number generator
@@ -30,7 +29,7 @@ void heapify(int array[], int size, int i);
 void insert(int array[], int w, int v);
 int deleteRoot(int array[], int num);
 void printArray(int array[], int size);
-int size=0 ,priorityW[15],priorityV[15];
+int size=0, *priorityV, *priorityW;
 int main()
 {
     Graph g;
@@ -70,6 +69,8 @@ int main()
                     free(g.S);
                     free(g.d);
                     free(g.pi);
+                    free(priorityV);
+                    free(priorityW);
                 }
 
                 printf("Enter the number of vertices:\n");
@@ -77,6 +78,8 @@ int main()
                 g.d = (int *) malloc(sizeof(int)*g.V);
                 g.S = (int *) malloc(sizeof(int)*g.V);
                 g.pi = (int *) malloc(sizeof(int)*g.V);
+                priorityV = (int *) malloc(sizeof(int)*g.V);
+                priorityW = (int *) malloc(sizeof(int)*g.V);
                 g.list = (ListNode **) malloc(g.V*sizeof(ListNode *));//Set null to all list node
                 for(int i=0;i<g.V;i++){
                     g.S[i] = 0;
@@ -91,16 +94,16 @@ int main()
                 printf("Enter two vertices in which V1 is adjacent to V2 and the weights:\n"); //V1 -> V2
                 while(scanf("%d %d %d",&V1,&V2, &W) == 3)
                 {
-                    if(V1>0 && V1<=g.V && V2>0 && V2<=g.V)
+                    if(V1>-1 && V1<g.V && V2>-1 && V2<g.V)
                     {
-                        if(g.list[V1-1] == NULL)
+                        if(g.list[V1] == NULL)
                         {
-                            g.list[V1-1] = (ListNode *)malloc(sizeof(ListNode));
-                            g.list[V1-1]->source= V1;
-                            g.list[V1-1]->vertex = V2;
-                            g.list[V1-1]->weight = W;
-                            g.list[V1-1]->next = NULL;
-                            temp = g.list[V1-1];
+                            g.list[V1] = (ListNode *)malloc(sizeof(ListNode));
+                            g.list[V1]->source= V1;
+                            g.list[V1]->vertex = V2;
+                            g.list[V1]->weight = W;
+                            g.list[V1]->next = NULL;
+                            temp = g.list[V1];
                             g.E++;
                         }
                         else
@@ -139,6 +142,8 @@ int main()
                     free(g.S);
                     free(g.d);
                     free(g.pi);
+                    free(priorityV);
+                    free(priorityW);
                 }
 
                 srand(time(0));
@@ -147,6 +152,8 @@ int main()
                 g.d = (int *) malloc(sizeof(int)*g.V);
                 g.S = (int *) malloc(sizeof(int)*g.V);
                 g.pi = (int *) malloc(sizeof(int)*g.V);
+                priorityV = (int *) malloc(sizeof(int)*g.V);
+                priorityW = (int *) malloc(sizeof(int)*g.V);
                 for(int i=0;i<g.V;i++){
                     g.S[i] = 0;
                     priorityW[i]=0;
@@ -209,7 +216,7 @@ int main()
                 }
                 break;
             case 4:
-                dik(g,0);
+                dik(g,1);
 
                 break;
             case 5:
@@ -230,6 +237,8 @@ int main()
                     free(g.S);
                     free(g.d);
                     free(g.pi);
+                    free(priorityV);
+                    free(priorityW);
                 }
                 printf("Enter the number of vertices: ");
                 int ver_count, max_edge;
@@ -253,9 +262,12 @@ int main()
 
                 //Initializing Arrays for Dijsktra
                 g.S = (int *) malloc(sizeof(int)*g.V); //Array S for visited
+                priorityV = (int *) malloc(sizeof(int)*g.V);
+                priorityW = (int *) malloc(sizeof(int)*g.V);
                 for(int i=0;i<g.V;i++)
                     g.S[i] = 0;
-
+                    priorityV[i]=0;
+                    priorityW[i]=0;
                 g.d = (int *) malloc(sizeof(int)*g.V); //Array for distance
                 for(int i=0;i<g.V;i++)
                     g.d[i] = 0;
@@ -329,7 +341,7 @@ void heapify(int array[], int size, int i)
 {
   if (size == 1)
   {
-    printf("Single element in the heap");
+    printf("Single element in the heap\n");
   }
   else
   {
@@ -363,81 +375,57 @@ void insert(int array[],int w, int v)
     priorityV[size]= v;
     printf("inserted source %d with weight %d\n",priorityV[size],priorityW[size]);
     size ++;
-
-    for (int i = size / 2 - 1; i >= 0; i--)
+     for (int i = size / 2 - 1; i >= 0; i--)
     {
       heapify(array, size, i);
     }
   }
+  printArray(array,size);
 }
 int deleteRoot(int array[], int num)
 {
   int i=0,value=0;
-  for (i = 0; i < size; i++)
-  {
-    if (num == array[i])
-      break;
-  }
-  if(num==-1){
+  heapify(priorityW, size, 0);
+  if(num==-1){ //to obtain smallest value in priority queue
     i=0;
   }
+  else{
+    for (i = 0; i < size; i++)
+    {
+        if (num == array[i])
+        break;
+    }
+  }
+
+
   value=priorityV[i];
   array[i]=0;
+  priorityW[i]=0;
   swap(&array[i], &array[size - 1]);
   swap(&priorityW[i], &priorityW[size - 1]);
   size --;
   for (int i = size / 2 - 1; i >= 0; i--){
-    heapify(array, size, i);
+    heapify(priorityW, size, i);
    }
+   printf("deleted %d\n",value);
   return value;
 }
 void printArray(int array[], int size)
 {
-  for (int i = 0; i < size; ++i)
+  for (int i = 0; i < size; i++)
     printf("%d ", array[i]);
   printf("\n");
 }
-void adjL2adjM(Graph *g){
-    int i,j;
-    ListNode *temp;
 
-    if(g->type == ADJ_MATRIX) {printf("Error"); return;}
-    if(g->V<=0){printf("Empty graph!"); return;}
-
-    int ** mat = (int **)malloc(g->V*sizeof(int *));
-    for(i=0;i<g->V;i++)
-        mat[i] = (int *)malloc(g->V*sizeof(int));
-
-    for(i=0;i<g->V;i++)
-        for(j=0;j<g->V;j++)
-            mat[i][j] = 0;
-
-    for(i=0;i<g->V;i++){
-        temp = g->adj.list[i];
-        while(temp!=NULL){
-            mat[i][(temp->vertex)-1]=1;
-            temp = temp->next;
-        }
-    }
-
-    g->type = ADJ_MATRIX;
-
-    for(i=0;i<g->V;i++)
-        free(g->adj.list[i]);
-    free(g->adj.list);
-
-    g->adj.matrix = mat;
-
-}
 void dik(Graph G, int source){
 
     int d[G.V], pi[G.V],S[G.V],i=0,u, v=0;
-
+    source--;
 
     for(i=0;i<G.V;i++){
         d[i]=10000; //assign infinity
-        pi[i]=0; // assign null
-        S[i]=0;
+        pi[i]=-1; // assign null
+        S[i]=-1;
         priorityV[i]=0;// initialise priority
         priorityW[i]=0;
     }
@@ -450,19 +438,37 @@ void dik(Graph G, int source){
         insert(priorityW, d[i],i);//add vertices to priority queue
     }
     while(size!=0){
-        u=deleteRoot(priorityV,-1);
-        S[u]=1;
+        u=deleteRoot(priorityV,-1);// extractcheapest
+        for(i=0;i<G.V;i++){
+            if(S[i]==-1){
+                S[i]= u;
+
+                break;
+            }
+
+        }
+
         struct _listnode *temp=G.list[u];
         while(temp!=NULL){
-            v=temp->vertex-1;
-            if(S[temp->vertex-1]!=1 && d[v]>(d[u]+G.list[u]->weight)){
+            v=temp->vertex;
+            if(S[temp->vertex]==-1 && d[v]>(d[u]+temp->weight)){
                 deleteRoot(priorityV,v);
-                d[v]=d[u]+ G.list[u]->weight;
+                d[v]=d[u]+ temp->weight;
                 pi[v]= u;
                 insert(priorityW,d[v],v);
             }
             temp=temp->next;
+            printf("d:\n");
             printArray(d,G.V);
+            printf("pi:\n");
+            printArray(pi,G.V);
+            printf("s:\n");
+            printArray(S,G.V);
+            printf("pW:\n");
+            printArray(priorityW,size);
+            printf("pV:\n");
+            printArray(priorityV,size);
+
         }
     }
     end = clock();
