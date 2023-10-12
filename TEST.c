@@ -46,7 +46,7 @@ int main()
         printf("2. Random Generator\n");
         printf("3. Print Adjacency List\n");
         printf("4. Insert into priority list\n");
-        printf("5. enter number of vertices\n");
+        printf("5. Enter number of vertices\n");
         printf("6. Exit Program\n");
         scanf("%d", &choice);
         switch(choice)
@@ -439,14 +439,7 @@ void dik(Graph G, int source){
     }
     while(size!=0){
         u=deleteRoot(priorityV,-1);// extractcheapest
-        for(i=0;i<G.V;i++){
-            if(S[i]==-1){
-                S[i]= u;
-
-                break;
-            }
-
-        }
+        S[u] = 1;
 
         struct _listnode *temp=G.list[u];
         while(temp!=NULL){
@@ -471,13 +464,26 @@ void dik(Graph G, int source){
 
         }
     }
+
+            printf("d:\n");
+            printArray(d,G.V);
+            printf("pi:\n");
+            printArray(pi,G.V);
+            printf("s:\n");
+            printArray(S,G.V);
+            printf("pW:\n");
+            printArray(priorityW,size);
+            printf("pV:\n");
+            printArray(priorityV,size);
+
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    //printf("Time: %f",cpu_time_used);
+    printf("Time: %f\n",cpu_time_used);
 
 
     return;
 }
+
 /*enum GraphType {ADJ_MATRIX, ADJ_LIST}; // Types of Graph Representation
 
 typedef struct _listnode
