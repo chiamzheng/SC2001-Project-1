@@ -41,6 +41,7 @@ double dijsktraArrayMatrix(Graph g);
 void SortPriorityQueue(int *, int *, int);
 void removeAdjacentV(int, int*, int*, int);
 void insertNewV(int vertex_v, int v_distance, int*, int*, int queue_size);
+void insertNewVintoSorted (int vertex_v, int v_distance, int *priorityqueue_VertexSorted, int *priorityqueue_DistanceSorted, int queue_size);
 
 //part b
 double dijsktraListHeap(Graph G, int source);
@@ -73,7 +74,7 @@ int main()
     
     do{
         printf("1. Generate 1 Graph (Enter Vertex & Edges)\n");
-        printf("2. Generate Multiple Graphs (Enter Number of Graphs) [Not implemented]\n");
+        printf("2. Generate Multiple Graphs (Enter Number of Graphs)\n");
         printf("3. Manual Input into Matrix [Not implemented]\n");
         printf("4. Test Matrix\n");
         printf("5. Exit Program\n");
@@ -144,7 +145,77 @@ int main()
                 fprintf(file, "%d,%d,%f,%f,%f\n", g.V, g.E, (double)((double)g.E/(double)g.V), CPU_time_A, CPU_time_B);
 
                 break;
-            case 2:
+            case 2: //Multiple Graphs
+                
+                printf("Enter the number of Graphs:\n");
+                int num_of_graph;
+                scanf("%d", &num_of_graph);
+                //Asking for the number of Vertex and Edges
+                printf("Enter the number of vertices:\n");
+                scanf("%d",&g.V);
+                do{
+                    printf("Enter the number of edges:\n");
+                    scanf("%d",&g.E);
+                    
+                    if (g.E < g.V){
+                        printf("Invalid number of edges (Number of Edges need to be >= Number of Vertices)\n");
+                    }
+                    else if (g.E > ( g.V * (g.V - 1) )){
+                        printf("Invalid number of edges (Too many edges):\n");
+                    }
+                    
+                } while (g.E < g.V || g.E > ( g.V * (g.V - 1) ));
+                
+                
+                
+                for (int i=0; i<num_of_graph; i++){
+                    
+                    //Initalizing Graph Matrix PART A, g.adj.matrix
+                    //Initalize Matrix Columns
+                    g.adj.matrix = (int **)malloc(g.V*sizeof(int *));
+                    //Initalize Matrix Rows
+                    for(int i=0;i<g.V;i++)
+                        g.adj.matrix[i] = (int *)malloc(g.V*sizeof(int));
+
+                    //Initalizing for PART B
+                    g.d = (int *) malloc(sizeof(int)*g.V);
+                    g.S = (int *) malloc(sizeof(int)*g.V);
+                    g.pi = (int *) malloc(sizeof(int)*g.V);
+                    priorityV = (int *) malloc(sizeof(int)*g.V);
+                    priorityW = (int *) malloc(sizeof(int)*g.V);
+                    for(int i=0;i<g.V;i++){
+                        g.S[i] = 0;
+                        priorityW[i]=0;
+                        priorityV[i]=0;
+                        g.d[i] = 0;
+                        g.pi[i] = 0;
+                    }
+                    
+                    generateRandomMatrix(g);
+                    //printf("The Matrix list is:\n");
+                    //printGraphMatrix(g);
+                    
+                    double CPU_time_A, CPU_time_B;
+                    
+                    CPU_time_A = dijsktraArrayMatrix(g); //Part A
+                    printf("\nConverting Matrix into List...\n\n");
+                    adjM2adjL(&g);
+                    printf("The equivalent list is:\n");
+                    printGraphList(g);
+                    CPU_time_B = dijsktraListHeap(g, 1); //Part B
+                    
+                    fprintf(file, "%d,%d,%f,%f,%f\n", g.V, g.E, (double)((double)g.E/(double)g.V), CPU_time_A, CPU_time_B);
+                    
+                    free(g.adj.matrix);
+                    free(g.list);
+                    free(g.d);
+                    free(g.pi);
+                    free(g.S);
+                    free(priorityV);
+                    free(priorityW);
+
+                }
+              
                 
                 break;
             
@@ -500,9 +571,42 @@ double dijsktraArrayMatrix(Graph g){
 
                     d[adj_vertex_v] = d[vertex_u] + g.adj.matrix[vertex_u][adj_vertex_v];
                     pi[adj_vertex_v] = vertex_u;
+                    
+                   
+                    
+                    insertNewVintoSorted (adj_vertex_v, d[adj_vertex_v], priorityqueue_VertexSorted, priorityqueue_DistanceSorted, queue_size);
+                    queue_size++;
+                    
+                    printf("adj_vertex_v after INSERTING %d\n", adj_vertex_v);
+                                        printf("Priority vertex queue is:\n");
+                                        for (int i=0; i<queue_size; i++){
+                                            printf("%d ", priorityqueue_VertexSorted[i]);
+                                        }
+                                        printf("\n");
+                                        printf("Priority distance queue is:\n");
+                                        for (int i=0; i<queue_size; i++){
+                                            printf("%d ", priorityqueue_DistanceSorted[i]);
+                                        }
+                                        printf("\n");
+                                        printf("\n");
+                                        
+                                        printf("Priority vertex queue is:\n");
+                                        for (int i=0; i<queue_size; i++){
+                                            printf("%d ", priorityqueue_VertexSorted[i]);
+                                        }
+                                        printf("\n");
+                                        printf("Priority distance queue is:\n");
+                                        for (int i=0; i<queue_size; i++){
+                                            printf("%d ", priorityqueue_DistanceSorted[i]);
+                                        }
+                                        printf("\n");
+                                        printf("\n");
+                    
+                    /*
                     insertNewV(adj_vertex_v, d[adj_vertex_v], priorityqueue_VertexSorted, priorityqueue_DistanceSorted, queue_size);
                     queue_size++;
                     SortPriorityQueue(priorityqueue_VertexSorted, priorityqueue_DistanceSorted, queue_size);
+                     */
                 }
             }
         }
@@ -536,28 +640,6 @@ double dijsktraArrayMatrix(Graph g){
     return cpu_time_used;
 }
 
-void SortPriorityQueue(int *priorityqueue_VertexSorted, int *priorityqueue_DistanceSorted, int QueueSize){
-    //Sorting by distance, swap both Vertex and Distance
-    
-    //Using insertion sort although not the most efficient
-    for (int i=1; i<QueueSize; i++){
-        for (int j=i; j>0; j--){
-            if (priorityqueue_DistanceSorted[j] < priorityqueue_DistanceSorted[j-1]){
-                //Swap operation
-                int temp_vertex = priorityqueue_VertexSorted[j];
-                int temp_distance = priorityqueue_DistanceSorted[j];
-                
-                priorityqueue_VertexSorted[j] = priorityqueue_VertexSorted[j-1];
-                priorityqueue_DistanceSorted[j] = priorityqueue_DistanceSorted[j-1];
-                
-                priorityqueue_VertexSorted[j-1] = temp_vertex;
-                priorityqueue_DistanceSorted[j-1] = temp_distance;
-            }
-        }
-        
-    }
-}
-
 void removeAdjacentV(int remove_vertex, int *priorityqueue_VertexSorted, int *priorityqueue_DistanceSorted, int QueueSize){
     
     int remove_index = 9999999;
@@ -570,6 +652,10 @@ void removeAdjacentV(int remove_vertex, int *priorityqueue_VertexSorted, int *pr
     
     if(remove_index == 9999999){
         printf("Unable to find remove_index.");
+        return;
+    }
+    
+    if (remove_index == QueueSize-1){
         return;
     }
     
@@ -591,6 +677,57 @@ void insertNewV(int vertex_v, int v_distance, int *priorityqueue_VertexSorted, i
     priorityqueue_VertexSorted[queue_size] = vertex_v;
     priorityqueue_DistanceSorted[queue_size] = v_distance;
       
+}
+
+
+//Happens after remove adjacent, where we remove the vertex v from its spot and shift all the elements preceding to fill up its index
+//can think of the queue_size as the rear of
+void insertNewVintoSorted (int vertex_v, int v_distance, int *priorityqueue_VertexSorted, int *priorityqueue_DistanceSorted, int queue_size){
+    
+    //Sorting by distance, swap both Vertex and Distance
+    
+    //Assuming that the list is already sorted, as we only insert it in using this method
+    //Iterating through the priorityqueue_distance array to find the position to insert the vertex V with its new distance into
+    int insert_index = queue_size;
+    for (int i=0; i<=queue_size; i++){
+        
+        if (v_distance <= priorityqueue_DistanceSorted[i]){ //found the index i where the new vertex belongs to
+            
+            for (int j=queue_size+1; j>i; j--){ //shifting all the elements after i one index up to make space for the new vertex_v
+                priorityqueue_DistanceSorted[j] = priorityqueue_DistanceSorted[j-1];
+                priorityqueue_VertexSorted[j] = priorityqueue_VertexSorted[j-1];
+            }
+            priorityqueue_VertexSorted[i] = vertex_v;
+            priorityqueue_DistanceSorted[i] = v_distance;
+            insert_index = i;
+            return;
+        }
+    }
+    priorityqueue_VertexSorted[insert_index] = vertex_v;
+    priorityqueue_DistanceSorted[insert_index] = v_distance;
+    
+}
+
+void SortPriorityQueue(int *priorityqueue_VertexSorted, int *priorityqueue_DistanceSorted, int QueueSize){
+    //Sorting by distance, swap both Vertex and Distance
+    
+    //Using insertion sort although not the most efficient
+    for (int i=1; i<QueueSize; i++){
+        for (int j=i; j>0; j--){
+            if (priorityqueue_DistanceSorted[j] < priorityqueue_DistanceSorted[j-1]){
+                //Swap operation
+                int temp_vertex = priorityqueue_VertexSorted[j];
+                int temp_distance = priorityqueue_DistanceSorted[j];
+                
+                priorityqueue_VertexSorted[j] = priorityqueue_VertexSorted[j-1];
+                priorityqueue_DistanceSorted[j] = priorityqueue_DistanceSorted[j-1];
+                
+                priorityqueue_VertexSorted[j-1] = temp_vertex;
+                priorityqueue_DistanceSorted[j-1] = temp_distance;
+            }
+        }
+        
+    }
 }
 
 void generateRandomMatrix(Graph g){
