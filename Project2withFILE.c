@@ -88,10 +88,11 @@ int main()
                 //Asking for the number of Vertex and Edges
                 printf("Enter the number of vertices:\n");
                 scanf("%d",&g.V);
+
                 do{
                     printf("Enter the number of edges:\n");
                     scanf("%d",&g.E);
-                    
+
                     if (g.E < g.V){
                         printf("Invalid number of edges (Number of Edges need to be >= Number of Vertices)\n");
                     }
@@ -100,7 +101,7 @@ int main()
                     }
                     
                 } while (g.E < g.V || g.E > ( g.V * (g.V - 1) ));
-                
+
                 //Initalizing Graph Matrix PART A, g.adj.matrix
                 //Initalize Matrix Columns
                 g.adj.matrix = (int **)malloc(g.V*sizeof(int *));
@@ -318,6 +319,8 @@ int main()
                     
                     for (int k=0; k<num_of_graph; k++){
                         
+                        printf("j is %d.\n", j);
+                        
                         g.V = j;
                         
                         //Initalizing Graph Matrix PART A, g.adj.matrix
@@ -331,8 +334,7 @@ int main()
                         g.d = (int *) malloc(sizeof(int)*g.V);
                         g.S = (int *) malloc(sizeof(int)*g.V);
                         g.pi = (int *) malloc(sizeof(int)*g.V);
-      
-                        
+
                         priorityV = (int *) malloc(sizeof(int)*g.V);
                         priorityW = (int *) malloc(sizeof(int)*g.V);
                         for(int i=0;i<g.V;i++){
@@ -358,14 +360,27 @@ int main()
                         
                         fprintf(file, "%d,%d,%f,%f,%f\n", g.V, g.E, (double)((double)g.E/(double)g.V), CPU_time_A, CPU_time_B);
                         
+                        for(int i=0; i<g.V; i++){
+                           free(g.adj.matrix[i]);
+                        }
                         free(g.adj.matrix);
+                        
+                        for(int i=0; i<g.V; i++){
+                            ListNode *current = g.list[i];
+                            while (current != NULL){
+                            ListNode *temp = current;
+                            current = current->next;
+                            free(temp);
+                            }
+                        }
                         free(g.list);
+                        
                         free(g.d);
                         free(g.pi);
                         free(g.S);
                         free(priorityV);
                         free(priorityW);
-                        
+                        size = 0;
                     }
                 }
             }
@@ -403,14 +418,14 @@ int main()
                     test_graph.pi[i] = 0;
                 }
                 
-                printf("TEST Matrix is:\n");
-                printGraphMatrix(test_graph);
+                //printf("TEST Matrix is:\n");
+                //printGraphMatrix(test_graph);
                 
                 dijsktraArrayMatrix(test_graph); //Part A
-                printf("\nConverting Matrix into List...\n\n");
+                //printf("\nConverting Matrix into List...\n\n");
                 adjM2adjL(&test_graph);
-                printf("The equivalent list is:\n");
-                printGraphList(test_graph);
+                //printf("The equivalent list is:\n");
+                //printGraphList(test_graph);
                 dijsktraListHeap(test_graph, 1); //Part B
                 
                 break;
@@ -605,6 +620,7 @@ double dijsktraListHeap(Graph G, int source){
 
         struct _listnode *temp=G.list[u];
         while(temp!=NULL){
+            
             v=temp->vertex;
             if(S[temp->vertex]==-1 && d[v]>(d[u]+temp->weight)){
                 deleteRoot(priorityV,v);
@@ -614,11 +630,14 @@ double dijsktraListHeap(Graph G, int source){
             }
             temp=temp->next;
         }
+        
     }
     
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     
+    printf("List&Heap Time: %f\n",cpu_time_used);
+    /*
     printf("List&Heap Time: %f\n",cpu_time_used);
     
     printf("\n");
@@ -641,7 +660,7 @@ double dijsktraListHeap(Graph G, int source){
     }
     printf("\n");
 
-     
+    */
 
     return cpu_time_used;
 }
@@ -714,8 +733,8 @@ double dijsktraArrayMatrix(Graph g){
     
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-
-    
+    printf("Matrix&Array Time: %f\n",cpu_time_used);
+    /*
     printf("Matrix&Array Time: %f\n",cpu_time_used);
     printf("\n");
     printf("For the Matrix:\n");
@@ -736,7 +755,7 @@ double dijsktraArrayMatrix(Graph g){
         printf("%d\t", S[i]);
     }
     printf("\n");
-    
+    */
     return cpu_time_used;
 }
 
