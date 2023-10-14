@@ -397,7 +397,7 @@ void insert(int array[],int w, int v)
 int deleteRoot(int array[], int num)
 {
   int i=0,value=0;
-  heapify(priorityW, size, 0);
+  //heapify(priorityW, size, 0);
   if(num==-1){ //to obtain smallest value in priority queue
     i=0;
   }
@@ -450,6 +450,7 @@ double dijsktraListHeap(Graph G, int source){
     for(i=0;i<G.V;i++){
         insert(priorityW, d[i],i);//add vertices to priority queue
     }
+    
     while(size!=0){
         u=deleteRoot(priorityV,-1);// extractcheapest
         S[u] = 1;
@@ -464,33 +465,8 @@ double dijsktraListHeap(Graph G, int source){
                 insert(priorityW,d[v],v);
             }
             temp=temp->next;
-            /*
-            printf("d:\n");
-            printArray(d,G.V);
-            printf("pi:\n");
-            printArray(pi,G.V);
-            printf("s:\n");
-            printArray(S,G.V);
-            printf("pW:\n");
-            printArray(priorityW,size);
-            printf("pV:\n");
-            printArray(priorityV,size);
-            */
         }
     }
-            /*
-            printf("d:\n");
-            printArray(d,G.V);
-            printf("pi:\n");
-            printArray(pi,G.V);
-            printf("s:\n");
-            printArray(S,G.V);
-            printf("pW:\n");
-            printArray(priorityW,size);
-            printf("pV:\n");
-            printArray(priorityV,size);
-    
-             */
     printf("\n");
     printf("For the List:\n");
     printf("Distance Array:\n");
@@ -557,51 +533,24 @@ double dijsktraArrayMatrix(Graph g){
 
         int vertex_u = priorityqueue_VertexSorted[0]; //Extract Cheapest is the first index as it is sorted by distance already
         
-        removeAdjacentV(vertex_u, priorityqueue_VertexSorted, priorityqueue_DistanceSorted, queue_size);
+        removeAdjacentV(vertex_u, priorityqueue_VertexSorted, priorityqueue_DistanceSorted, queue_size); //worst |V|
         S[vertex_u] = 1;
         queue_size--;
         
-        for (int adj_vertex_v = 0; adj_vertex_v<g.V; adj_vertex_v++){
+        for (int adj_vertex_v = 0; adj_vertex_v<g.V; adj_vertex_v++){ // |V|
             if (adj_vertex_v != vertex_u && g.adj.matrix[vertex_u][adj_vertex_v] != 0){ //Ignore itself, we do not include self-loops && ignore missing edges
 
                 if (S[adj_vertex_v] != 1 && d[adj_vertex_v] > d[vertex_u] + g.adj.matrix[vertex_u][adj_vertex_v]){
                     //Not Visited && Current Distance > New Distance
-                    removeAdjacentV(adj_vertex_v, priorityqueue_VertexSorted, priorityqueue_DistanceSorted, queue_size);
+                    removeAdjacentV(adj_vertex_v, priorityqueue_VertexSorted, priorityqueue_DistanceSorted, queue_size); //|V|
                     queue_size--;
 
                     d[adj_vertex_v] = d[vertex_u] + g.adj.matrix[vertex_u][adj_vertex_v];
                     pi[adj_vertex_v] = vertex_u;
-                    
-                   
-                    
-                    insertNewVintoSorted (adj_vertex_v, d[adj_vertex_v], priorityqueue_VertexSorted, priorityqueue_DistanceSorted, queue_size);
+
+                    insertNewVintoSorted (adj_vertex_v, d[adj_vertex_v], priorityqueue_VertexSorted, priorityqueue_DistanceSorted, queue_size); //|V|
                     queue_size++;
-                    
-                    printf("adj_vertex_v after INSERTING %d\n", adj_vertex_v);
-                                        printf("Priority vertex queue is:\n");
-                                        for (int i=0; i<queue_size; i++){
-                                            printf("%d ", priorityqueue_VertexSorted[i]);
-                                        }
-                                        printf("\n");
-                                        printf("Priority distance queue is:\n");
-                                        for (int i=0; i<queue_size; i++){
-                                            printf("%d ", priorityqueue_DistanceSorted[i]);
-                                        }
-                                        printf("\n");
-                                        printf("\n");
                                         
-                                        printf("Priority vertex queue is:\n");
-                                        for (int i=0; i<queue_size; i++){
-                                            printf("%d ", priorityqueue_VertexSorted[i]);
-                                        }
-                                        printf("\n");
-                                        printf("Priority distance queue is:\n");
-                                        for (int i=0; i<queue_size; i++){
-                                            printf("%d ", priorityqueue_DistanceSorted[i]);
-                                        }
-                                        printf("\n");
-                                        printf("\n");
-                    
                     /*
                     insertNewV(adj_vertex_v, d[adj_vertex_v], priorityqueue_VertexSorted, priorityqueue_DistanceSorted, queue_size);
                     queue_size++;
@@ -672,13 +621,6 @@ void removeAdjacentV(int remove_vertex, int *priorityqueue_VertexSorted, int *pr
     return;
 }
 
-void insertNewV(int vertex_v, int v_distance, int *priorityqueue_VertexSorted, int *priorityqueue_DistanceSorted, int queue_size){
-    
-    priorityqueue_VertexSorted[queue_size] = vertex_v;
-    priorityqueue_DistanceSorted[queue_size] = v_distance;
-      
-}
-
 
 //Happens after remove adjacent, where we remove the vertex v from its spot and shift all the elements preceding to fill up its index
 //can think of the queue_size as the rear of
@@ -707,7 +649,14 @@ void insertNewVintoSorted (int vertex_v, int v_distance, int *priorityqueue_Vert
     priorityqueue_DistanceSorted[insert_index] = v_distance;
     
 }
-
+/*
+void insertNewV(int vertex_v, int v_distance, int *priorityqueue_VertexSorted, int *priorityqueue_DistanceSorted, int queue_size){
+    
+    priorityqueue_VertexSorted[queue_size] = vertex_v;
+    priorityqueue_DistanceSorted[queue_size] = v_distance;
+      
+}
+*/
 void SortPriorityQueue(int *priorityqueue_VertexSorted, int *priorityqueue_DistanceSorted, int QueueSize){
     //Sorting by distance, swap both Vertex and Distance
     
