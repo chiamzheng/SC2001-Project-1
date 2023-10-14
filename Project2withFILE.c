@@ -75,7 +75,7 @@ int main()
     do{
         printf("1. Generate 1 Graph (Enter Vertex & Edges)\n");
         printf("2. Generate Multiple Graphs (Enter Number of Graphs)\n");
-        printf("3. Manual Input into Matrix [Not implemented]\n");
+        printf("3. Generate in Intervals (Fixed Vertex, Vary Edges)\n");
         printf("4. Test Matrix\n");
         printf("5. Exit Program\n");
         printf("Enter Choice: ");
@@ -83,7 +83,7 @@ int main()
         
         switch(choice){
             case 1: //Random Generator (Enter Vertex & Edges)
-
+                
                 //Asking for the number of Vertex and Edges
                 printf("Enter the number of vertices:\n");
                 scanf("%d",&g.V);
@@ -106,7 +106,7 @@ int main()
                 //Initalize Matrix Rows
                 for(int i=0;i<g.V;i++)
                     g.adj.matrix[i] = (int *)malloc(g.V*sizeof(int));
-
+                
                 //Initalizing for PART B
                 g.d = (int *) malloc(sizeof(int)*g.V);
                 g.S = (int *) malloc(sizeof(int)*g.V);
@@ -121,32 +121,32 @@ int main()
                     g.pi[i] = 0;
                 }
                 /*
-                generateRandomMatrix(g);
-                printGraphMatrix(g);
-                
-                printf("\nConverting Matrix into List\n\n");
-                adjM2adjL(&g);
-                printf("The equivalent list is:\n");
-                printGraphList(g);
-                */
+                 generateRandomMatrix(g);
+                 printGraphMatrix(g);
+                 
+                 printf("\nConverting Matrix into List\n\n");
+                 adjM2adjL(&g);
+                 printf("The equivalent list is:\n");
+                 printGraphList(g);
+                 */
                 generateRandomMatrix(g);
                 printf("The Matrix list is:\n");
                 printGraphMatrix(g);
                 
                 double CPU_time_A, CPU_time_B;
-            
+                
                 CPU_time_A = dijsktraArrayMatrix(g); //Part A
                 printf("\nConverting Matrix into List...\n\n");
                 adjM2adjL(&g);
                 printf("The equivalent list is:\n");
                 printGraphList(g);
                 CPU_time_B = dijsktraListHeap(g, 1); //Part B
-
+                
                 fprintf(file, "%d,%d,%f,%f,%f\n", g.V, g.E, (double)((double)g.E/(double)g.V), CPU_time_A, CPU_time_B);
-
+                
                 break;
             case 2: //Multiple Graphs
-                
+            {
                 printf("Enter the number of Graphs:\n");
                 int num_of_graph;
                 scanf("%d", &num_of_graph);
@@ -168,6 +168,7 @@ int main()
                 
                 
                 
+                
                 for (int i=0; i<num_of_graph; i++){
                     
                     //Initalizing Graph Matrix PART A, g.adj.matrix
@@ -176,7 +177,7 @@ int main()
                     //Initalize Matrix Rows
                     for(int i=0;i<g.V;i++)
                         g.adj.matrix[i] = (int *)malloc(g.V*sizeof(int));
-
+                    
                     //Initalizing for PART B
                     g.d = (int *) malloc(sizeof(int)*g.V);
                     g.S = (int *) malloc(sizeof(int)*g.V);
@@ -213,14 +214,84 @@ int main()
                     free(g.S);
                     free(priorityV);
                     free(priorityW);
-
+                    
                 }
-              
                 
+        }
                 break;
             
-            case 3:
+            case 3: //From a certain interval + Start point
                 
+                printf("Enter the starting number for edges (min should be |V|-1):\n");
+                int edge_start_value;
+                scanf("%d", &edge_start_value);
+                printf("Enter the interval value for edges:\n");
+                int interval_value;
+                scanf("%d", &interval_value);
+                printf("Enter the end value for edges:\n");
+                int end_value;
+                scanf("%d", &end_value);
+                
+                printf("Enter the number of Graphs:\n");
+                int num_of_graph;
+                scanf("%d", &num_of_graph);
+                //Asking for the number of Vertex and Edges
+                printf("Enter the number of vertices:\n");
+                scanf("%d",&g.V);
+                
+                
+                
+                for(int j=edge_start_value; j<=end_value; j+=interval_value){
+                    
+                    for (int i=0; i<num_of_graph; i++){
+                        
+                        //Initalizing Graph Matrix PART A, g.adj.matrix
+                        //Initalize Matrix Columns
+                        g.adj.matrix = (int **)malloc(g.V*sizeof(int *));
+                        //Initalize Matrix Rows
+                        for(int i=0;i<g.V;i++)
+                            g.adj.matrix[i] = (int *)malloc(g.V*sizeof(int));
+                        
+                        //Initalizing for PART B
+                        g.d = (int *) malloc(sizeof(int)*g.V);
+                        g.S = (int *) malloc(sizeof(int)*g.V);
+                        g.pi = (int *) malloc(sizeof(int)*g.V);
+                        g.E = j;
+                        priorityV = (int *) malloc(sizeof(int)*g.V);
+                        priorityW = (int *) malloc(sizeof(int)*g.V);
+                        for(int i=0;i<g.V;i++){
+                            g.S[i] = 0;
+                            priorityW[i]=0;
+                            priorityV[i]=0;
+                            g.d[i] = 0;
+                            g.pi[i] = 0;
+                        }
+                        
+                        generateRandomMatrix(g);
+                        //printf("The Matrix list is:\n");
+                        //printGraphMatrix(g);
+                        
+                        double CPU_time_A, CPU_time_B;
+                        
+                        CPU_time_A = dijsktraArrayMatrix(g); //Part A
+                        //printf("\nConverting Matrix into List...\n\n");
+                        adjM2adjL(&g);
+                        //printf("The equivalent list is:\n");
+                        //printGraphList(g);
+                        CPU_time_B = dijsktraListHeap(g, 1); //Part B
+                        
+                        fprintf(file, "%d,%d,%f,%f,%f\n", g.V, g.E, (double)((double)g.E/(double)g.V), CPU_time_A, CPU_time_B);
+                        
+                        free(g.adj.matrix);
+                        free(g.list);
+                        free(g.d);
+                        free(g.pi);
+                        free(g.S);
+                        free(priorityV);
+                        free(priorityW);
+                        
+                    }
+                }
                 break;
                 
             case 4: //Test Case
@@ -443,6 +514,7 @@ double dijsktraListHeap(Graph G, int source){
         priorityW[i]=0;
     }
     d[source]=0;
+    
     clock_t start, end; //added time func
     double cpu_time_used;
     start = clock();
@@ -467,6 +539,11 @@ double dijsktraListHeap(Graph G, int source){
             temp=temp->next;
         }
     }
+    
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("List&Heap Time: %f\n",cpu_time_used);
+    
     printf("\n");
     printf("For the List:\n");
     printf("Distance Array:\n");
@@ -487,9 +564,6 @@ double dijsktraListHeap(Graph G, int source){
     }
     printf("\n");
 
-    end = clock();
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    printf("List&Heap Time: %f\n",cpu_time_used);
 
 
     return cpu_time_used;
@@ -852,3 +926,4 @@ void adjL2adjM(Graph *g){
     
 }
 */
+
