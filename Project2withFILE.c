@@ -542,6 +542,7 @@ double dijsktraListHeap(Graph G, int source){
     
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    /*
     printf("List&Heap Time: %f\n",cpu_time_used);
     
     printf("\n");
@@ -564,7 +565,7 @@ double dijsktraListHeap(Graph G, int source){
     }
     printf("\n");
 
-
+     */
 
     return cpu_time_used;
 }
@@ -637,9 +638,9 @@ double dijsktraArrayMatrix(Graph g){
     
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+    /*
     printf("Matrix&Array Time: %f\n",cpu_time_used);
-    
-    
     printf("\n");
     printf("For the Matrix:\n");
     printf("Distance Array:\n");
@@ -659,7 +660,7 @@ double dijsktraArrayMatrix(Graph g){
         printf("%d\t", S[i]);
     }
     printf("\n");
-
+    */
     return cpu_time_used;
 }
 
@@ -926,4 +927,3 @@ void adjL2adjM(Graph *g){
     
 }
 */
-
