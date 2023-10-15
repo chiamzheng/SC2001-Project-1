@@ -634,7 +634,7 @@ void printArray(int array[], int size)
   printf("\n");
 }
 
-/*
+
 void insertWithoutHeapify(int array[],int w, int v){
     if (size == 0)
     {
@@ -650,7 +650,7 @@ void insertWithoutHeapify(int array[],int w, int v){
       size++;
     }
 }
-*/
+
 double dijsktraListHeap(Graph G, int source){
     
     int d[G.V], pi[G.V],S[G.V],i=0,u, v=0;
