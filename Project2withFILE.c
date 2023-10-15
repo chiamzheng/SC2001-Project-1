@@ -47,6 +47,7 @@ void insertNewVintoSorted (int vertex_v, int v_distance, int *priorityqueue_Vert
 double dijsktraListHeap(Graph G, int source);
 void swap(int *a, int *b);
 void heapify(int array[], int size, int i);
+void insertWithoutHeapify(int array[],int w, int v);
 void insert(int array[], int w, int v);
 int deleteRoot(int array[], int num);
 void printArray(int array[], int size);
@@ -144,6 +145,9 @@ int main()
                 printGraphList(g);
                 CPU_time_B = dijsktraListHeap(g, 1); //Part B
                 
+                printf("CPU_time_A is %f", CPU_time_A);
+                printf("CPU_time_A is %f", CPU_time_A);
+                
                 fprintf(file, "%d,%d,%f,%f,%f\n", g.V, g.E, (double)((double)g.E/(double)g.V), CPU_time_A, CPU_time_B);
                 
                 break;
@@ -195,8 +199,8 @@ int main()
                     }
                     
                     generateRandomMatrix(g);
-                    //printf("The Matrix list is:\n");
-                    //printGraphMatrix(g);
+                    printf("The Matrix list is:\n");
+                    printGraphMatrix(g);
                     
                     double CPU_time_A, CPU_time_B;
                     
@@ -245,6 +249,7 @@ int main()
                 
                 for(int j=edge_start_value; j<=end_value; j+=interval_value){
                     
+                    printf("j is %d", j);
                     for (int k=0; k<num_of_graph; k++){
                         
                         //Initalizing Graph Matrix PART A, g.adj.matrix
@@ -284,13 +289,27 @@ int main()
                         
                         fprintf(file, "%d,%d,%f,%f,%f\n", g.V, g.E, (double)((double)g.E/(double)g.V), CPU_time_A, CPU_time_B);
                         
+                        for(int i=0; i<g.V; i++){
+                           free(g.adj.matrix[i]);
+                        }
                         free(g.adj.matrix);
+                        
+                        for(int i=0; i<g.V; i++){
+                            ListNode *current = g.list[i];
+                            while (current != NULL){
+                            ListNode *temp = current;
+                            current = current->next;
+                            free(temp);
+                            }
+                        }
                         free(g.list);
+                        
                         free(g.d);
                         free(g.pi);
                         free(g.S);
                         free(priorityV);
                         free(priorityW);
+                        size = 0;
                         
                     }
                 }
@@ -317,10 +336,10 @@ int main()
                 
                 for(int j=vertex_start_value; j<=end_value; j+=interval_value){
                     
+                    printf("j is %d\n", j);
+                    
                     for (int k=0; k<num_of_graph; k++){
-                        
-                        printf("j is %d.\n", j);
-                        
+                                                
                         g.V = j;
                         
                         //Initalizing Graph Matrix PART A, g.adj.matrix
@@ -352,6 +371,7 @@ int main()
                         double CPU_time_A, CPU_time_B;
 
                         CPU_time_A = dijsktraArrayMatrix(g); //Part A
+                        //printGraphMatrix(g);
                         //printf("\nConverting Matrix into List...\n\n");
                         adjM2adjL(&g);
                         //printf("The equivalent list is:\n");
@@ -418,15 +438,37 @@ int main()
                     test_graph.pi[i] = 0;
                 }
                 
-                //printf("TEST Matrix is:\n");
-                //printGraphMatrix(test_graph);
+                printf("TEST Matrix is:\n");
+                printGraphMatrix(test_graph);
                 
                 dijsktraArrayMatrix(test_graph); //Part A
-                //printf("\nConverting Matrix into List...\n\n");
+                printf("\nConverting Matrix into List...\n\n");
                 adjM2adjL(&test_graph);
-                //printf("The equivalent list is:\n");
-                //printGraphList(test_graph);
+                printf("The equivalent list is:\n");
+                printGraphList(test_graph);
                 dijsktraListHeap(test_graph, 1); //Part B
+                                
+                int d[5], pi[5], S[5];
+                
+                printf("\n");
+                printf("For the List:\n");
+                printf("Distance Array:\n");
+                for (int i=0; i<test_graph.V; i++){
+                    printf("%d\t", d[i]);
+                }
+                
+                printf("\n");
+                printf("pi Array:\n");
+                for (int i=0; i<test_graph.V; i++){
+                    printf("%d\t", pi[i]);
+                }
+                printf("\n");
+                
+                printf("S Array:\n");
+                for (int i=0; i<test_graph.V; i++){
+                    printf("%d\t", S[i]);
+                }
+                printf("\n");
                 
                 break;
                 }
@@ -509,7 +551,7 @@ void swap(int *a, int *b)
   *a = temp;
 }
 
-void heapify(int array[], int size, int i)
+void heapify(int array[], int size, int i) //does on one subtree of 3
 {
   if (size == 1)
   {
@@ -592,6 +634,23 @@ void printArray(int array[], int size)
   printf("\n");
 }
 
+/*
+void insertWithoutHeapify(int array[],int w, int v){
+    if (size == 0)
+    {
+      array[0] = w;
+      priorityV[0]= v; //global
+      //printf("inserted source %d with weight %d\n",priorityV[size],priorityW[size]);
+      size++;
+    }
+    else
+    {
+      array[size] = w;
+      priorityV[size]= v;
+      size++;
+    }
+}
+*/
 double dijsktraListHeap(Graph G, int source){
     
     int d[G.V], pi[G.V],S[G.V],i=0,u, v=0;
@@ -609,18 +668,25 @@ double dijsktraListHeap(Graph G, int source){
     clock_t start, end; //added time func
     double cpu_time_used;
     start = clock();
+    
     //priority[0]=source; // queue source node
     for(i=0;i<G.V;i++){
-        insert(priorityW, d[i],i);//add vertices to priority queue
+        if (i != G.V-1){
+            insertWithoutHeapify(priorityW, d[i],i);
+        }
+        else{
+            insert(priorityW, d[i],i);//add vertices to priority queue
+        }
     }
     
     while(size!=0){
-        u=deleteRoot(priorityV,-1);// extractcheapest
+        u = deleteRoot(priorityV,-1);// extractcheapest
         S[u] = 1;
-
+        
         struct _listnode *temp=G.list[u];
+
         while(temp!=NULL){
-            
+            //printf("temp->vertex is %d\n", temp->vertex);
             v=temp->vertex;
             if(S[temp->vertex]==-1 && d[v]>(d[u]+temp->weight)){
                 deleteRoot(priorityV,v);
@@ -636,7 +702,6 @@ double dijsktraListHeap(Graph G, int source){
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     
-    printf("List&Heap Time: %f\n",cpu_time_used);
     /*
     printf("List&Heap Time: %f\n",cpu_time_used);
     
@@ -717,15 +782,17 @@ double dijsktraArrayMatrix(Graph g){
 
                     d[adj_vertex_v] = d[vertex_u] + g.adj.matrix[vertex_u][adj_vertex_v];
                     pi[adj_vertex_v] = vertex_u;
-
-                    insertNewVintoSorted (adj_vertex_v, d[adj_vertex_v], priorityqueue_VertexSorted, priorityqueue_DistanceSorted, queue_size); //|V|
-                    queue_size++;
-                                        
+                    
                     /*
                     insertNewV(adj_vertex_v, d[adj_vertex_v], priorityqueue_VertexSorted, priorityqueue_DistanceSorted, queue_size);
                     queue_size++;
                     SortPriorityQueue(priorityqueue_VertexSorted, priorityqueue_DistanceSorted, queue_size);
                      */
+                    
+                    insertNewVintoSorted (adj_vertex_v, d[adj_vertex_v], priorityqueue_VertexSorted, priorityqueue_DistanceSorted, queue_size); //|V|
+                    queue_size++;
+                    
+
                 }
             }
         }
@@ -733,7 +800,7 @@ double dijsktraArrayMatrix(Graph g){
     
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    printf("Matrix&Array Time: %f\n",cpu_time_used);
+
     /*
     printf("Matrix&Array Time: %f\n",cpu_time_used);
     printf("\n");
@@ -863,7 +930,7 @@ void generateRandomMatrix(Graph g){
     int random_vertex_row;
     int random_vertex_column;
     
-    int upper = 10; //upper weight limit
+    int upper = 20; //upper weight limit
     int lower = 1; // lower weight limit
     
     //Making sure each vertex has at least 1 edge
@@ -903,16 +970,12 @@ void adjM2adjL(Graph *g)
     if (g->V <= 0) {printf("Empty Graph.\n"); return;}
     
     
-    ListNode **list;
-    list = (ListNode **)malloc(sizeof(ListNode*) * g->V);
-    
-    for (int index=0; index<g->V; index++){
-        list[index] = NULL;
-    }
-    
     ListNode *temp_node = NULL;
     
-    g->list = (ListNode **) malloc(g->V*sizeof(ListNode *));
+    g->list = (ListNode **) malloc(g->V * sizeof(ListNode *));
+    for (int index=0; index<g->V; index++){
+        g->list[index] = NULL;
+    }
     
     for (int i=0; i<g->V; i++){
         for (int j=0; j<g->V; j++){
@@ -938,8 +1001,6 @@ void adjM2adjL(Graph *g)
             
         }
     }
-    
-    g->adj.list = list;
 
 }
 
@@ -974,51 +1035,11 @@ void printGraphList(Graph g){
     }
 }
 
-/*
-//List to Matrix Probably dunnid
-void adjL2adjM(Graph *g){
-    if (g->type == ADJ_MATRIX){
-        printf("Error. Graph is already in matrix form.\n");
-        return;
-    }
-    if (g->V <= 0){
-        printf("Empty Graph.\n");
-        return;
-    }
+void insertNewV(int vertex_v, int v_distance, int *priorityqueue_VertexSorted, int *priorityqueue_DistanceSorted, int queue_size){
     
-    int **mat;
-    mat = (int**)malloc(sizeof(int*) * g->V); //Allocate memory for the rows
-    for (int i=0; i<g->V; i++){
-        mat[i] = (int*)malloc(sizeof(int) *g->V); //Allocate memory of the columns
-    }
-    
-    //Initalizing all the values of the matrix to 0
-    for (int i=0; i<g->V; i++){
-        for (int j=0; j<g->V; j++){
-            mat[i][j] = 0;
-        }
-    }
-    
-    ListNode *temp_node = NULL;
-    int i;
-    
-    for (i=0; i<g->V; i++){
-        temp_node = g->adj.list[i];
-        while (temp_node!=NULL){
-            mat[i][temp_node->vertex] = temp_node->weight;
-            temp_node = temp_node->next;
-        }
-    }
-    
-    g->type = ADJ_MATRIX;
-    
-    for (i=0; i<g->V; i++){
-        free(g->adj.list[i]);
-    }
-    free(g->adj.list);
-    
-    
-    g->adj.matrix = mat;
-    
+    priorityqueue_VertexSorted[queue_size] = vertex_v;
+    priorityqueue_DistanceSorted[queue_size] = v_distance;
+      
 }
-*/
+
+
